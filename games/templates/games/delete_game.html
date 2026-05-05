@@ -1,0 +1,28 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Oyun Sil{% endblock %}
+{% block page_title %}Oyunu Sil{% endblock %}
+{% block page_subtitle %}Bu işlem geri alınamaz. Silmeden önce emin ol.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card section-card">
+            <div class="section-title">Silme Onayı</div>
+
+            <div class="mb-4">
+                <p class="mb-2">Aşağıdaki oyunu silmek istediğine emin misin?</p>
+                <div class="badge-soft">{{ game.name }}</div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-modern btn-red">Evet, Sil</button>
+                    <a href="/dashboard/" class="btn btn-modern btn-dark-soft">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

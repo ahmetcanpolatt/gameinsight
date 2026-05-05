@@ -1,0 +1,182 @@
+<div id="games-section">
+    <div class="row g-4 mt-4">
+        <div class="col-12">
+            <div class="glass-card section-card">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="section-title mb-0">🎮 Oyun Koleksiyonum</div>
+
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <span class="badge-soft">{{ total_games }} kayıt</span>
+                        <a href="/library/" class="btn btn-modern btn-dark-soft">Tüm Kütüphaneyi Gör</a>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    {% for game in games %}
+                    <div class="col-md-3">
+
+                        <div class="game-card" onclick="openGamePopup('gamePopup{{ game.id }}')">
+
+                            {% if game.image_url %}
+                            <div class="game-image">
+                                <img src="{{ game.image_url }}" alt="{{ game.name }}" loading="lazy">
+                            </div>
+                            {% else %}
+                            <div class="game-image game-image-placeholder">
+                                <span>🎮</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="game-overlay" onclick="event.stopPropagation()">
+                                <a href="/edit/{{ game.id }}/" class="btn btn-warning overlay-btn">Düzenle</a>
+                                <a href="/delete/{{ game.id }}/" class="btn btn-danger overlay-btn">Sil</a>
+                            </div>
+
+                            <div class="game-info">
+                                <div class="game-title">{{ game.name }}</div>
+                                <div class="game-meta">
+                                    {{ game.platform.name }} • {{ game.genre.name }}
+                                </div>
+
+                                {% if game.price %}
+                                    <div class="game-price">{{ game.price }} TL</div>
+                                {% else %}
+                                    <div class="game-price muted">Satın alma fiyatı yok</div>
+                                {% endif %}
+
+                                {% if game.estimated_price %}
+                                    <div class="game-estimated-price">Tahmini: {{ game.estimated_price }} TL</div>
+                                {% endif %}
+
+                                {% if game.rating %}
+                                    <div class="game-rating">⭐ {{ game.rating }}/5</div>
+                                {% else %}
+                                    <div class="game-rating muted">⭐ Puan yok</div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <div class="custom-popup"
+                             id="gamePopup{{ game.id }}"
+                             onclick="closeGamePopup('gamePopup{{ game.id }}')">
+
+                            <div class="custom-popup-content"
+                                 onclick="event.stopPropagation()">
+
+                                <button class="custom-popup-close"
+                                        onclick="closeGamePopup('gamePopup{{ game.id }}')">
+                                    ×
+                                </button>
+
+                                {% if game.image_url %}
+                                <img src="{{ game.image_url }}"
+                                     class="custom-popup-image"
+                                     alt="{{ game.name }}"
+                                     loading="lazy">
+                                {% endif %}
+
+                                <div class="custom-popup-body">
+
+                                    <h2>{{ game.name }}</h2>
+
+                                    <p style="color: var(--text-muted);">
+                                        {{ game.platform.name }} • {{ game.genre.name }}
+                                    </p>
+
+                                    <div><strong>Fiyat:</strong> {{ game.price }} TL</div>
+                                    <div><strong>Oynama Süresi:</strong> {{ game.playtime_hours }} saat</div>
+                                    <div><strong>Satın Alma:</strong> {{ game.purchase_date }}</div>
+
+                                    {% if game.rating %}
+                                        <div><strong>Puan:</strong> ⭐ {{ game.rating }}/5</div>
+                                    {% else %}
+                                        <div><strong>Puan:</strong> Puan yok</div>
+                                    {% endif %}
+
+                                    <div class="mt-4 d-flex gap-2">
+                                        <a href="/edit/{{ game.id }}/" class="btn btn-warning">Düzenle</a>
+                                        <a href="/delete/{{ game.id }}/" class="btn btn-danger">Sil</a>
+                                        <button class="btn btn-secondary"
+                                                onclick="closeGamePopup('gamePopup{{ game.id }}')">
+                                            Kapat
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div style="color: var(--text-muted);">
+                            Henüz oyun eklenmemiş.
+                        </div>
+                        <a href="/add/" class="btn btn-modern btn-red mt-3">
+                            İlk Oyununu Ekle
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <nav>
+                        <ul class="pagination collection-pagination">
+
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       hx-get="?page=1"
+                                       hx-target="#games-section"
+                                       hx-swap="outerHTML">
+                                        ⏮
+                                    </a>
+                                </li>
+
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       hx-get="?page={{ page_obj.previous_page_number }}"
+                                       hx-target="#games-section"
+                                       hx-swap="outerHTML">
+                                        ‹
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       hx-get="?page={{ page_obj.next_page_number }}"
+                                       hx-target="#games-section"
+                                       hx-swap="outerHTML">
+                                        ›
+                                    </a>
+                                </li>
+
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       hx-get="?page={{ page_obj.paginator.num_pages }}"
+                                       hx-target="#games-section"
+                                       hx-swap="outerHTML">
+                                        ⏭
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

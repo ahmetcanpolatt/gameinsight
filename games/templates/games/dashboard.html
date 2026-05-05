@@ -1,0 +1,755 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}GameInsight analiz paneli{% endblock %}
+
+{% block content %}
+
+<style>
+    .topbar { display: none !important; }
+
+    .dashboard-page {
+        animation: pageFade 0.35s ease;
+    }
+
+    @keyframes pageFade {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dashboard-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        margin-bottom: 24px;
+        background:
+            radial-gradient(circle at 85% 20%, rgba(229,9,20,0.26), transparent 34%),
+            radial-gradient(circle at 10% 0%, rgba(77,171,247,0.12), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+        border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .dashboard-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent 45%);
+        pointer-events: none;
+    }
+
+    .dashboard-hero h1 {
+        position: relative;
+        z-index: 2;
+        font-weight: 950;
+        margin: 0;
+        font-size: clamp(30px, 4vw, 50px);
+        letter-spacing: -0.8px;
+    }
+
+    .dashboard-hero p {
+        position: relative;
+        z-index: 2;
+        color: var(--text-muted);
+        margin: 8px 0 0;
+        font-size: 1rem;
+    }
+
+    .dashboard-actions {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 10px;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .dashboard-actions .btn-modern {
+        padding: 11px 15px;
+        font-size: 14px;
+    }
+
+    .btn-logout-soft {
+        background: rgba(255,255,255,0.055);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.86);
+    }
+
+    .btn-logout-soft:hover {
+        background: rgba(229,9,20,0.16);
+        border-color: rgba(229,9,20,0.4);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .dashboard-filter {
+        background:
+            radial-gradient(circle at 15% 0%, rgba(229,9,20,0.13), transparent 35%),
+            linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+        border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .premium-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 0%, rgba(229,9,20,0.16), transparent 38%);
+        opacity: 0;
+        transition: 0.3s ease;
+        pointer-events: none;
+    }
+
+    .premium-card:hover::before {
+        opacity: 1;
+    }
+
+    .metric-card {
+        min-height: 136px;
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 85% 15%, rgba(255,255,255,0.08), transparent 30%),
+            linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .metric-card::after {
+        content: "";
+        position: absolute;
+        right: -28px;
+        bottom: -28px;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(229,9,20,0.12);
+        filter: blur(4px);
+    }
+
+    .metric-label {
+        position: relative;
+        z-index: 2;
+        font-size: 0.88rem;
+        letter-spacing: 0.2px;
+    }
+
+    .metric-value {
+        position: relative;
+        z-index: 2;
+        font-size: clamp(1.45rem, 2.3vw, 2rem);
+        letter-spacing: -0.4px;
+    }
+
+    .dashboard-section {
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 85% 0%, rgba(229,9,20,0.10), transparent 32%),
+            linear-gradient(145deg, rgba(255,255,255,0.065), rgba(255,255,255,0.025));
+        border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .dashboard-section::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent 45%);
+        pointer-events: none;
+    }
+
+    .dashboard-section > * {
+        position: relative;
+        z-index: 2;
+    }
+
+    .section-title {
+        font-weight: 850;
+        letter-spacing: 0.2px;
+    }
+
+    .section-title::before {
+        content: "";
+        width: 6px;
+        height: 20px;
+        border-radius: 99px;
+        background: linear-gradient(180deg, #e50914, rgba(229,9,20,0.1));
+        display: inline-block;
+    }
+
+    .chart-box {
+        height: 360px;
+        position: relative;
+    }
+
+    .chart-box.tall {
+        height: 430px;
+    }
+
+    .mini-chart-box {
+        height: 300px;
+        position: relative;
+    }
+
+    .dashboard-spacer {
+        margin-top: 26px;
+    }
+
+    .chart-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+    }
+
+    .chart-toolbar select {
+        max-width: 170px;
+        background: rgba(0,0,0,0.24);
+    }
+
+    .netflix-game-card {
+        background:
+            radial-gradient(circle at 80% 0%, rgba(229,9,20,0.10), transparent 35%),
+            linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+    }
+
+    .netflix-game-card:hover {
+        transform: translateY(-7px) scale(1.045);
+        z-index: 5;
+    }
+
+    @media (max-width: 991px) {
+        .dashboard-actions {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .chart-box,
+        .chart-box.tall,
+        .mini-chart-box {
+            height: 300px;
+        }
+    }
+</style>
+
+<div class="dashboard-page">
+
+<div class="glass-card dashboard-hero">
+    <div class="row align-items-center g-3">
+        <div class="col-lg-6">
+            <h1>Merhaba {{ user.username }}</h1>
+            <p>Kütüphanen, harcamaların ve oyun davranışların tek ekranda.</p>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="dashboard-actions">
+                <a href="/add/" class="btn btn-modern btn-red">+ Yeni Oyun</a>
+                <a href="/rawg/search/" class="btn btn-modern btn-dark-soft">RAWG Ara</a>
+                <a href="/steam/sync/" class="btn btn-modern btn-dark-soft">Steam Sync</a>
+                <a href="/logout/" class="btn btn-modern btn-logout-soft">Çıkış</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card section-card filter-box dashboard-filter mb-4">
+    <div class="section-title">Filtreler ve Arama</div>
+
+    <form method="GET" class="row g-3">
+        <div class="col-lg-4">
+            <label for="q" class="form-label">Ara</label>
+            <input type="text" name="q" id="q" class="form-control"
+                   placeholder="Oyun, platform veya tür ara" value="{{ query }}">
+        </div>
+
+        <div class="col-lg-3">
+            <label for="platform" class="form-label">Platform</label>
+            <select name="platform" id="platform" class="form-select">
+                <option value="">Tümü</option>
+                {% for p in platforms %}
+                    <option value="{{ p }}" {% if selected_platform == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-lg-3">
+            <label for="genre" class="form-label">Tür</label>
+            <select name="genre" id="genre" class="form-select">
+                <option value="">Tümü</option>
+                {% for g in genres %}
+                    <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-lg-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-modern btn-red w-100">Ara</button>
+        </div>
+
+        <div class="col-12 d-flex gap-2 flex-wrap">
+            <a href="/dashboard/" class="btn btn-modern btn-dark-soft">Sıfırla</a>
+            <a href="/export/csv/" class="btn btn-modern btn-dark-soft">CSV İndir</a>
+            <a href="/import/csv/" class="btn btn-modern btn-dark-soft">CSV Yükle</a>
+            <a href="/export/analysis/" class="btn btn-modern btn-dark-soft">Analiz CSV</a>
+            <a href="/export/analysis-pdf/" class="btn btn-modern btn-dark-soft">Analiz PDF</a>
+            <a href="/send/report/" class="btn btn-modern btn-dark-soft">Raporu Mail Gönder</a>
+        </div>
+    </form>
+</div>
+
+{% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+            <div class="alert alert-{% if 'success' in message.tags %}success{% elif 'error' in message.tags %}danger{% else %}info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Toplam Harcama</div><div class="metric-value metric-highlight-gold">{{ total_spent }} TL</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Toplam Oyun</div><div class="metric-value">{{ total_games }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Ortalama Fiyat</div><div class="metric-value metric-highlight-blue">{{ average_price }} TL</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Saat Başına Maliyet</div><div class="metric-value">{{ cost_per_hour }} TL</div></div></div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Toplam Oynama Süresi</div><div class="metric-value">{{ total_playtime }} saat</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">En Çok Oynanan</div><div class="metric-value" style="font-size:1.2rem;">{{ most_played_game }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">En Çok Kullanılan Platform</div><div class="metric-value" style="font-size:1.2rem;">{{ top_platform }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">En Çok Harcanan Tür</div><div class="metric-value" style="font-size:1.2rem;">{{ top_genre }}</div></div></div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">En Pahalı Oyun</div><div class="metric-value" style="font-size:1.2rem;">{{ most_expensive_game }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Son Satın Alınan</div><div class="metric-value" style="font-size:1.2rem;">{{ latest_game }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">En Uzun Oynanan Oyun</div><div class="metric-value" style="font-size:1.2rem;">{{ longest_played_game }}</div></div></div>
+    <div class="col-md-3"><div class="glass-card metric-card premium-card"><div class="metric-label">Ortalama Oynama Süresi</div><div class="metric-value">{{ average_playtime }} saat</div></div></div>
+</div>
+
+<div class="row g-4 dashboard-spacer">
+    <div class="col-lg-7">
+        <div class="glass-card section-card dashboard-section">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="section-title mb-0">Aylık Harcama Grafiği</div>
+                <div class="chart-toolbar mb-0">
+                    <select id="monthlyYearSelect" class="form-select">
+                        <option value="all">Tüm Yıllar</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-box tall">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="glass-card section-card dashboard-section">
+            <div class="section-title">En Çok Oynanan Oyunlar</div>
+            <div class="chart-box tall">
+                <canvas id="topPlayedChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 dashboard-spacer">
+    <div class="col-lg-6">
+        <div class="glass-card section-card dashboard-section">
+            <div class="section-title">Tür Bazlı Oyun Dağılımı</div>
+            <div class="mini-chart-box">
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="glass-card section-card dashboard-section">
+            <div class="section-title">Platform Bazlı Oyun Dağılımı</div>
+            <div class="mini-chart-box">
+                <canvas id="platformChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 dashboard-spacer">
+    <div class="col-lg-6">
+        <div class="glass-card section-card dashboard-section">
+            <div class="section-title">Yıllık Harcama Grafiği</div>
+            <div class="mini-chart-box">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="glass-card section-card dashboard-section">
+            <div class="section-title">Saat Başına Maliyet Grafiği</div>
+            <div class="mini-chart-box">
+                <canvas id="costPerHourChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 dashboard-spacer">
+    <div class="col-12">
+        <div class="glass-card section-card dashboard-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">🔥 En Çok Oynananlar</div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-modern btn-dark-soft" onclick="scrollNetflixSlider('left')">◀</button>
+                    <button type="button" class="btn btn-modern btn-dark-soft" onclick="scrollNetflixSlider('right')">▶</button>
+                </div>
+            </div>
+
+            <div class="netflix-row">
+                <div class="netflix-slider" id="netflixSlider">
+                    {% for game in top_played_games %}
+                    <div class="netflix-game-card">
+                        {% if game.image_url %}
+                            <img src="{{ game.image_url }}" alt="{{ game.name }}">
+                        {% else %}
+                            <div class="netflix-game-placeholder">🎮</div>
+                        {% endif %}
+                        <div class="netflix-game-title">{{ game.name }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'games/partials/game_list_section.html' %}
+
+<div class="row g-4 dashboard-spacer">
+    <div class="col-12">
+        <div class="glass-card section-card dashboard-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">🧠 Senin İçin Önerilenler</div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-modern btn-dark-soft" onclick="scrollRecommendationSlider('left')">◀</button>
+                    <button type="button" class="btn btn-modern btn-dark-soft" onclick="scrollRecommendationSlider('right')">▶</button>
+                </div>
+            </div>
+
+            <div class="netflix-row">
+                <div class="netflix-slider" id="recommendationSlider">
+                    {% for game in recommended_games %}
+                    <div class="netflix-game-card">
+                        {% if game.image %}
+                            <img src="{{ game.image }}" alt="{{ game.name }}">
+                        {% else %}
+                            <div class="netflix-game-placeholder">🎮</div>
+                        {% endif %}
+                        <div class="netflix-game-title">{{ game.name }}</div>
+                        <div style="padding: 0 12px 12px; color: #ffd166; font-size: 13px;">
+                            ⭐ {{ game.rating }}/5
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="color: var(--text-muted); padding: 12px;">
+                        Öneri oluşturmak için oyun ekle.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const textColor = '#ffffff';
+const mutedText = 'rgba(255,255,255,0.65)';
+const gridColor = 'rgba(255,255,255,0.08)';
+
+Chart.defaults.color = textColor;
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+
+const rawMonthlyLabels = {{ monthly_labels|safe }};
+const rawMonthlyTotals = {{ monthly_totals|safe }};
+
+function normalizeMonthLabel(label) {
+    const text = String(label);
+
+    const isoMatch = text.match(/^(\d{4})-(\d{1,2})/);
+    if (isoMatch) {
+        return {
+            year: isoMatch[1],
+            label: isoMatch[1] + '-' + String(isoMatch[2]).padStart(2, '0')
+        };
+    }
+
+    const yearMatch = text.match(/(20\d{2}|19\d{2})/);
+    if (yearMatch) {
+        return {
+            year: yearMatch[1],
+            label: text
+        };
+    }
+
+    const currentYear = new Date().getFullYear().toString();
+
+    return {
+        year: currentYear,
+        label: text
+    };
+}
+
+const monthlyRows = rawMonthlyLabels.map((label, index) => {
+    const normalized = normalizeMonthLabel(label);
+
+    return {
+        year: normalized.year,
+        label: normalized.label,
+        value: Number(rawMonthlyTotals[index] || 0)
+    };
+});
+
+const monthlyLabels = monthlyRows.map(row => row.label);
+const monthlyTotals = monthlyRows.map(row => row.value);
+
+const yearSelect = document.getElementById('monthlyYearSelect');
+const years = [...new Set(monthlyRows.map(row => row.year))].filter(Boolean).sort();
+
+years.forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    yearSelect.appendChild(option);
+});
+
+const monthlyChart = new Chart(document.getElementById('monthlyChart'), {
+    type: 'line',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Harcama (TL)',
+            data: monthlyTotals,
+            borderColor: '#ffd166',
+            backgroundColor: 'rgba(255, 209, 102, 0.14)',
+            tension: 0.38,
+            fill: true,
+            pointBackgroundColor: '#ffd166',
+            pointBorderColor: '#111',
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: mutedText } } },
+        scales: {
+            x: { ticks: { color: mutedText }, grid: { color: gridColor } },
+            y: { beginAtZero: true, ticks: { color: mutedText }, grid: { color: gridColor } }
+        }
+    }
+});
+
+yearSelect.addEventListener('change', function () {
+    const selectedYear = this.value;
+    const rows = selectedYear === 'all'
+        ? monthlyRows
+        : monthlyRows.filter(row => row.year === selectedYear);
+
+    monthlyChart.data.labels = rows.map(row => row.label);
+    monthlyChart.data.datasets[0].data = rows.map(row => row.value);
+    monthlyChart.update();
+});
+
+const yearlyData = {};
+
+monthlyRows.forEach(row => {
+    yearlyData[row.year] = (yearlyData[row.year] || 0) + row.value;
+});
+
+new Chart(document.getElementById('yearlyChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(yearlyData),
+        datasets: [{
+            label: 'Yıllık Harcama (TL)',
+            data: Object.values(yearlyData),
+            backgroundColor: 'rgba(229,9,20,0.85)',
+            borderRadius: 12,
+            maxBarThickness: 54
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: mutedText } } },
+        scales: {
+            x: { ticks: { color: mutedText }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { color: mutedText }, grid: { color: gridColor } }
+        }
+    }
+});
+
+new Chart(document.getElementById('genreChart'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ genre_labels|safe }},
+        datasets: [{
+            data: {{ genre_counts|safe }},
+            backgroundColor: ['#e50914','#ff7b72','#ffd166','#4dabf7','#845ef7','#20c997','#f06595','#ff922b'],
+            borderColor: '#1b1b22',
+            borderWidth: 3,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { color: mutedText, padding: 18, usePointStyle: true }
+            }
+        }
+    }
+});
+
+new Chart(document.getElementById('platformChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ platform_labels|safe }},
+        datasets: [{
+            label: 'Oyun Sayısı',
+            data: {{ platform_counts|safe }},
+            backgroundColor: 'rgba(229,9,20,0.85)',
+            borderRadius: 12,
+            maxBarThickness: 46
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: mutedText }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { color: mutedText }, grid: { color: gridColor } }
+        }
+    }
+});
+
+new Chart(document.getElementById('topPlayedChart'), {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for game in top_played_games %}
+                "{{ game.name|escapejs }}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Saat',
+            data: [
+                {% for game in top_played_games %}
+                    {{ game.playtime_hours|default:0 }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: ['rgba(229,9,20,0.9)','rgba(255,122,122,0.85)','rgba(255,209,102,0.85)','rgba(77,171,247,0.85)','rgba(132,94,247,0.85)','rgba(32,201,151,0.85)','rgba(240,101,149,0.85)','rgba(255,146,43,0.85)'],
+            borderRadius: 12,
+            maxBarThickness: 34
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { beginAtZero: true, ticks: { color: mutedText }, grid: { color: gridColor } },
+            y: {
+                ticks: {
+                    color: mutedText,
+                    callback: function(value) {
+                        const label = this.getLabelForValue(value);
+                        return label.length > 18 ? label.substring(0, 18) + '...' : label;
+                    }
+                },
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+const costRows = [];
+
+{% for game in top_played_games %}
+(function () {
+    const name = "{{ game.name|escapejs }}";
+    const price = Number("{{ game.price|default:0 }}".replace(",", "."));
+    const playtime = Number("{{ game.playtime_hours|default:0 }}");
+
+    if (price > 0 && playtime > 0) {
+        costRows.push({
+            name: name,
+            value: Number((price / playtime).toFixed(2))
+        });
+    }
+})();
+{% endfor %}
+
+costRows.sort((a, b) => a.value - b.value);
+
+new Chart(document.getElementById('costPerHourChart'), {
+    type: 'bar',
+    data: {
+        labels: costRows.map(row => row.name),
+        datasets: [{
+            label: 'TL / Saat',
+            data: costRows.map(row => row.value),
+            backgroundColor: 'rgba(77,171,247,0.85)',
+            borderRadius: 12,
+            maxBarThickness: 34
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: mutedText } }
+        },
+        scales: {
+            x: { beginAtZero: true, ticks: { color: mutedText }, grid: { color: gridColor } },
+            y: {
+                ticks: {
+                    color: mutedText,
+                    callback: function(value) {
+                        const label = this.getLabelForValue(value);
+                        return label.length > 18 ? label.substring(0, 18) + '...' : label;
+                    }
+                },
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+function scrollRecommendationSlider(direction) {
+    const slider = document.getElementById('recommendationSlider');
+    if (!slider) return;
+    slider.scrollBy({ left: direction === 'left' ? -500 : 500, behavior: 'smooth' });
+}
+</script>
+{% endblock %}

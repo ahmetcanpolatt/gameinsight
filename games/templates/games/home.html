@@ -1,0 +1,516 @@
+{% extends 'games/base.html' %}
+
+{% block title %}GameInsight{% endblock %}
+
+{% block content %}
+
+<style>
+    .sidebar {
+        display: none !important;
+    }
+
+    .main-content {
+        max-width: 100vw !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .topbar {
+        display: none !important;
+    }
+
+    .landing-hero {
+        height: 108vh;
+        padding: 42px;
+        display: flex;
+        align-items: center;
+        background:
+            linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.78) 45%, rgba(0,0,0,0.28) 100%),
+            url('https://media.rawg.io/media/games/456/456dea5e1c7e3cd07060c14e96612001.jpg');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .landing-hero::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 220px;
+        background: linear-gradient(to bottom, transparent, #09090d);
+        pointer-events: none;
+    }
+
+    .landing-logo {
+        position: absolute;
+        top: 28px;
+        left: 100px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 900;
+        font-size: 1.35rem;
+        z-index: 2;
+    }
+
+    .landing-logo-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #e50914, #ff4d57);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 14px 32px rgba(229,9,20,0.35);
+    }
+
+    .hero-content {
+        max-width: 760px;
+        position: relative;
+        z-index: 2;
+        margin-left: 60px
+    }
+
+    .hero-kicker {
+        color: #e50914;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .hero-title {
+        font-size: clamp(42px, 7vw, 84px);
+        font-weight: 950;
+        line-height: 0.96;
+        margin-bottom: 22px;
+    }
+
+    .hero-text {
+        color: rgba(255,255,255,0.76);
+        font-size: 18px;
+        line-height: 1.6;
+        max-width: 650px;
+    }
+
+    .landing-section {
+        padding: 32px 36px;
+        background:
+            radial-gradient(circle at 20% 0%, rgba(229,9,20,0.08), transparent 40%),
+            radial-gradient(circle at 80% 100%, rgba(229,9,20,0.06), transparent 40%),
+            #09090d;
+    }
+
+    .landing-section.overlap {
+        margin-top: -58px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .landing-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .faq-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        height: 100%;
+        min-height: 245px;
+        padding: 28px;
+        border-radius: 24px;
+        background:
+            radial-gradient(circle at 85% 85%, rgba(229,9,20,0.18), transparent 30%),
+            linear-gradient(145deg, rgba(48,52,105,0.42), rgba(38,18,31,0.72));
+        border: 1px solid rgba(255,255,255,0.08);
+        transition: 0.25s;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(229,9,20,0.35);
+        box-shadow: 0 20px 45px rgba(0,0,0,0.45);
+    }
+
+    .feature-icon {
+        font-size: 31px;
+        margin-bottom: 18px;
+    }
+
+    .feature-title {
+        font-weight: 900;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        margin-bottom: 14px;
+    }
+
+    .feature-text {
+        color: rgba(255,255,255,0.68);
+        line-height: 1.55;
+        margin: 0;
+        font-size: 0.98rem;
+    }
+
+    .landing-info-card {
+        padding: 24px;
+    }
+
+    .landing-cta {
+        padding: 54px 36px 64px;
+        background:
+            linear-gradient(135deg, rgba(229,9,20,0.18), rgba(0,0,0,0.96)),
+            #0b0b0f;
+        text-align: center;
+    }
+
+    .scroll-indicator {
+        position: absolute;
+        right: 42px;
+        bottom: 83px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255,255,255,0.7);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .mouse {
+        width: 26px;
+        height: 42px;
+        border: 2px solid rgba(255,255,255,0.6);
+        border-radius: 20px;
+        position: relative;
+    }
+
+    .mouse::after {
+        content: "";
+        width: 4px;
+        height: 8px;
+        background: white;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 2px;
+        animation: scroll 1.5s infinite;
+    }
+
+    @keyframes scroll {
+        0% { opacity: 0; top: 8px; }
+        50% { opacity: 1; top: 18px; }
+        100% { opacity: 0; top: 28px; }
+    }
+
+    @media (max-width: 768px) {
+        .landing-hero {
+            height: 100vh;
+            padding: 32px 22px;
+        }
+
+        .landing-logo {
+            left: 22px;
+        }
+
+        .landing-section {
+            padding: 26px 18px;
+        }
+
+        .landing-section.overlap {
+            margin-top: -36px;
+        }
+
+        .scroll-indicator {
+            right: 22px;
+            bottom: 24px;
+        }
+
+        .scroll-indicator span {
+            display: none;
+        }
+
+        .feature-card {
+            min-height: auto;
+        }
+    }
+
+    .scroll-indicator {
+        transition: opacity 0.3s ease;
+    }
+
+    .scroll-indicator.hide {
+        opacity: 0;
+    }
+
+    .hero-content {
+        transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .hero-content.hero-fade {
+        opacity: 0.35;
+        transform: translateX(20px) scale(0.96) translateY(-12px);
+    }
+
+    .faq-card {
+        border-radius: 0;
+        background: rgba(255,255,255,0.13);
+        border: none;
+        border-bottom: 8px solid #09090d;
+        overflow: hidden;
+        transition: all 0.25s ease;
+    }
+
+    .faq-card:hover {
+        background: rgba(255,255,255,0.18);
+    }
+
+    .faq-question {
+        padding: 24px 28px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.15rem;
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 28px;
+        color: rgba(255,255,255,0.7);
+        transition: all 0.3s ease;
+        line-height: 1.55;
+    }
+
+    .faq-card.active .faq-answer {
+        max-height: 140px;
+        padding: 0 28px 22px;
+    }
+
+    .faq-icon {
+        transition: transform 0.3s ease;
+        font-size: 34px;
+        font-weight: 200;
+        opacity: 0.9;
+    }
+
+    .faq-card.active .faq-icon {
+        transform: rotate(45deg);
+    }
+</style>
+
+<div class="landing-hero">
+    <div class="landing-logo">
+        <div class="landing-logo-box">G</div>
+        <div>GameInsight</div>
+    </div>
+
+    <div class="hero-content">
+        <div class="hero-kicker">OYUN HARCAMA VE ANALİZ SİSTEMİ</div>
+
+        <h1 class="hero-title">
+            Oyunlarını izle.<br>
+            Harcamalarını analiz et.<br>
+            Daha akıllı oyna.
+        </h1>
+
+        <p class="hero-text">
+            GameInsight; oyun kütüphaneni yönetmeni, harcamalarını takip etmeni,
+            Steam ve RAWG entegrasyonlarıyla oyun verilerini zenginleştirmeni sağlayan modern bir analiz platformudur.
+        </p>
+
+        <div class="d-flex gap-3 flex-wrap mt-4">
+            <a href="/register/" class="btn btn-modern btn-red">Hemen Kayıt Ol</a>
+            <a href="/login/" class="btn btn-modern btn-dark-soft">Giriş Yap</a>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <span>Aşağı kaydır</span>
+        <div class="mouse"></div>
+    </div>
+</div>
+
+<div class="landing-section overlap">
+    <div class="landing-container">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-title">Oyun Kütüphanesi</div>
+                    <p class="feature-text">
+                        Oyunlarını platform, tür, fiyat, satın alma tarihi ve oynama süresiyle kayıt altında tut.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Analiz Dashboard</div>
+                    <p class="feature-text">
+                        Toplam harcama, saat başına maliyet, aylık harcama ve platform dağılımını gör.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-title">Akıllı Öneriler</div>
+                    <p class="feature-text">
+                        Oynama alışkanlıklarına göre sana uygun yeni oyun önerileri al.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <div class="feature-title">Raporlama</div>
+                    <p class="feature-text">
+                        Analizlerini CSV, PDF ve e-posta yoluyla dışa aktar ve paylaş.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="landing-section">
+    <div class="landing-container">
+        <div class="glass-card section-card landing-info-card">
+            <div class="section-title">GameInsight ile Neler Yapabilirsin?</div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <h5>🔥 Steam Senkronizasyonu</h5>
+                    <p style="color: var(--text-muted); margin-bottom: 0;">
+                        Steam ID ile oyunlarını sisteme aktarabilir, oynama sürelerini otomatik çekebilirsin.
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5>🖼 RAWG Veri Zenginleştirme</h5>
+                    <p style="color: var(--text-muted); margin-bottom: 0;">
+                        Oyun kapakları, tür bilgileri ve puanlar RAWG API üzerinden otomatik tamamlanır.
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5>💸 Harcama Kontrolü</h5>
+                    <p style="color: var(--text-muted); margin-bottom: 0;">
+                        Gerçek satın alma fiyatlarını analiz eder, tahmini fiyatlardan ayrı tutarak doğru sonuç üretir.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="landing-section">
+    <div class="faq-container">
+        <div class="section-title" style="font-size: 1.55rem; margin-bottom: 18px;">
+            Sık Sorulan Sorular
+        </div>
+
+        <div class="faq-card">
+            <div class="faq-question">
+                GameInsight ne işe yarar?
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                Oyun kütüphaneni yönetmeni, harcamalarını analiz etmeni ve öneriler almanı sağlar.
+            </div>
+        </div>
+
+        <div class="faq-card">
+            <div class="faq-question">
+                Steam bağlamak zorunlu mu?
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                Hayır. Manuel, CSV veya Steam ile ekleme yapabilirsin.
+            </div>
+        </div>
+
+        <div class="faq-card">
+            <div class="faq-question">
+                Fiyat analizleri nasıl çalışır?
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                Gerçek fiyatlar baz alınır, tahmini fiyatlar ayrı tutulur.
+            </div>
+        </div>
+
+        <div class="faq-card">
+            <div class="faq-question">
+                Raporları paylaşabilir miyim?
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                CSV, PDF ve e-posta ile dışa aktarabilirsin.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="landing-cta">
+    <h2 style="font-size: clamp(30px, 4vw, 52px); font-weight: 950;">
+        Kendi oyun analiz panelini oluştur.
+    </h2>
+
+    <p style="color: var(--text-muted); font-size: 18px; margin-top: 14px;">
+        Hemen ücretsiz hesap oluştur ve oyun kütüphaneni profesyonelce yönetmeye başla.
+    </p>
+
+    <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+        <a href="/register/" class="btn btn-modern btn-red">Üye Ol</a>
+        <a href="/login/" class="btn btn-modern btn-dark-soft">Zaten hesabım var</a>
+    </div>
+</div>
+
+<script>
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    const heroContent = document.querySelector('.hero-content');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 130) {
+            scrollIndicator.classList.add('hide');
+            heroContent.classList.add('hero-fade');
+        } else {
+            scrollIndicator.classList.remove('hide');
+            heroContent.classList.remove('hero-fade');
+        }
+    });
+</script>
+
+<script>
+    const faqItems = document.querySelectorAll('.faq-card');
+
+    faqItems.forEach(item => {
+        item.querySelector('.faq-question').addEventListener('click', () => {
+            faqItems.forEach(i => {
+                if(i !== item) i.classList.remove('active');
+            });
+
+            item.classList.toggle('active');
+        });
+    });
+</script>
+
+{% endblock %}

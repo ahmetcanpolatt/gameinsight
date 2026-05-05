@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GameInsight{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #0b0b0f;
+            --bg-card: rgba(255, 255, 255, 0.06);
+            --bg-card-hover: rgba(255, 255, 255, 0.09);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f5f5f7;
+            --text-muted: #a1a1b5;
+            --accent-red: #e50914;
+            --accent-gold: #ffd166;
+            --accent-blue: #4dabf7;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+            --radius-xl: 22px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(229, 9, 20, 0.14), transparent 25%),
+                radial-gradient(circle at top right, rgba(77, 171, 247, 0.10), transparent 25%),
+                linear-gradient(180deg, #09090d 0%, #111118 45%, #0b0b0f 100%);
+            color: var(--text-main);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { text-decoration: none; }
+
+        .app-shell {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px !important;
+            min-width: 260px !important;
+            max-width: 260px !important;
+            flex-shrink: 0;
+            background: rgba(10, 10, 14, 0.88);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            padding: 28px 18px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow: hidden;
+            transition: width 0.35s ease, min-width 0.35s ease, max-width 0.35s ease, padding 0.35s ease, border 0.35s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            padding-left: 0;
+            padding-right: 0;
+            border-right: 0;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 24px;
+            left: 210px;
+            z-index: 9999;
+            width: 38px;
+            height: 38px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: #fff;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.35s ease;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(229,9,20,0.75);
+            border-color: rgba(229,9,20,0.55);
+        }
+
+        .sidebar-toggle.collapsed {
+            left: 18px;
+            border-radius: 50%;
+        }
+
+        .brand {
+            margin-bottom: 32px;
+            padding: 10px 12px;
+            white-space: nowrap;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: inherit;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .brand-link:hover {
+            opacity: 0.86;
+            color: inherit;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-red), #ff5c5c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(229, 9, 20, 0.28);
+        }
+
+        .brand-text h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .brand-text span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .nav-section-title {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin: 22px 12px 10px;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin-bottom: 8px;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-color);
+            transform: translateX(4px);
+            color: #fff;
+        }
+
+        .nav-link-custom.active-link {
+            background: linear-gradient(90deg, rgba(229, 9, 20, 0.18), rgba(229, 9, 20, 0.06));
+            border-color: rgba(229, 9, 20, 0.28);
+        }
+
+        .nav-icon {
+            width: 28px;
+            min-width: 28px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            max-width: calc(100vw - 260px);
+            overflow-x: hidden;
+            padding: 26px 28px 40px;
+            transition: max-width 0.35s ease;
+            margin-left: 260px;
+            max-width: calc(100vw - 260px);
+        }
+
+        .main-content.full {
+            margin-left: 0 !important;
+            max-width: 100vw !important;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 28px;
+            padding: 16px 20px;
+            border-radius: var(--radius-xl);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topbar-left h2 {
+            margin: 0;
+            font-size: 1.45rem;
+            font-weight: 800;
+        }
+
+        .topbar-left p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 600;
+            transition: 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, var(--accent-red), #ff4d57);
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(229, 9, 20, 0.28);
+        }
+
+        .btn-red:hover,
+        .btn-dark-soft:hover {
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-dark-soft {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-dark-soft:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255,255,255,0.14);
+        }
+
+        .metric-card {
+            padding: 22px;
+            height: 100%;
+            transition: all 0.25s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            box-shadow: 0 22px 55px rgba(0,0,0,0.45);
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.15;
+            color: #fff;
+        }
+
+        .metric-highlight-gold { color: var(--accent-gold); }
+        .metric-highlight-blue { color: var(--accent-blue); }
+
+        .section-card { padding: 22px; }
+
+        .section-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-box label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .form-control::placeholder { color: rgba(255,255,255,0.35); }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(229, 9, 20, 0.45);
+            box-shadow: 0 0 0 0.2rem rgba(229, 9, 20, 0.12);
+        }
+
+        .form-select option { color: #111; }
+
+        .table-modern {
+            color: #fff;
+            margin-bottom: 0;
+        }
+
+        .table-modern thead th {
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 16px 14px;
+        }
+
+        .table-modern tbody td {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 14px;
+            vertical-align: middle;
+        }
+
+        .table-modern tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .table-modern tbody tr:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .badge-soft {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .alert {
+            border-radius: 16px;
+            border: none;
+        }
+
+        .game-card {
+            position: relative;
+            background: rgba(255,255,255,0.055);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .game-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 24px 50px rgba(0,0,0,0.55);
+            border-color: rgba(229,9,20,0.45);
+        }
+
+        .game-image {
+            position: relative;
+            width: 100%;
+            height: 190px;
+            overflow: hidden;
+        }
+
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+
+        .game-card:hover .game-image img { transform: scale(1.08); }
+
+        .game-image-placeholder {
+            width: 100%;
+            height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.06);
+            font-size: 42px;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 190px;
+            background: rgba(0,0,0,0.68);
+            opacity: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s ease;
+            z-index: 5;
+        }
+
+        .game-card:hover .game-overlay { opacity: 1; }
+
+        .overlay-btn {
+            padding: 10px 18px;
+            font-size: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .game-info { padding: 16px; }
+
+        .game-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #fff;
+            letter-spacing: 0.2px;
+        }
+
+        .game-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .game-price {
+            margin-top: 10px;
+            font-weight: 800;
+            color: #ff3045;
+            font-size: 16px;
+        }
+
+        .game-price.muted {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .game-rating {
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffd166;
+        }
+
+        .game-rating.muted { color: var(--text-muted); }
+
+        .game-estimated-price {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .custom-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.78);
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .custom-popup-content {
+            width: min(820px, 90vw);
+            max-height: 88vh;
+            background: #11111a;
+            color: white;
+            border-radius: 22px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.75);
+            animation: popupFadeIn 0.18s ease;
+        }
+
+        .custom-popup-image {
+            width: 100%;
+            height: clamp(220px, 42vh, 360px);
+            object-fit: cover;
+            display: block;
+        }
+
+        .custom-popup-body { padding: 22px 24px 24px; }
+
+        .custom-popup-body h2 {
+            font-size: clamp(24px, 3vw, 34px);
+            margin-bottom: 8px;
+        }
+
+        .custom-popup-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            border: none;
+            background: rgba(0,0,0,0.65);
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-size: 22px;
+            z-index: 10;
+            backdrop-filter: blur(6px);
+        }
+
+        @keyframes popupFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .netflix-row {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .netflix-slider {
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            padding: 6px 4px 14px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .netflix-slider::-webkit-scrollbar { height: 8px; }
+
+        .netflix-slider::-webkit-scrollbar-thumb {
+            background: rgba(229, 9, 20, 0.7);
+            border-radius: 999px;
+        }
+
+        .netflix-game-card {
+            flex: 0 0 220px;
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .netflix-game-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            border-color: rgba(229,9,20,0.45);
+            box-shadow: 0 16px 36px rgba(229,9,20,0.16);
+        }
+
+        .netflix-game-card img {
+            width: 220px;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .netflix-game-placeholder {
+            width: 220px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.06);
+            font-size: 34px;
+        }
+
+        .netflix-game-title {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.2px;
+        }
+
+        .collection-pagination {
+            gap: 6px;
+        }
+
+        .collection-pagination .page-link {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: transparent !important;
+            color: rgba(255,255,255,0.7) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(6px);
+        }
+
+        .collection-pagination .page-link:hover {
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.35) !important;
+            background: rgba(255,255,255,0.05) !important;
+        }
+
+        .collection-pagination .page-item.disabled .page-link {
+            background: transparent !important;
+            color: #e50914 !important;
+            border-color: rgba(229,9,20,0.4) !important;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                width: 0 !important;
+                min-width: 0 !important;
+                max-width: 0 !important;
+                padding: 0;
+                border-right: 0;
+            }
+
+            .main-content {
+                max-width: 100vw !important;
+                padding: 18px 16px 32px;
+            }
+
+            .sidebar-toggle {
+                left: 18px !important;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        {% if user.is_authenticated %}
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menüyü aç/kapat">
+            ☰
+        </button>
+        {% endif %}
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <a href="/" class="brand-link">
+                    <div class="brand-logo">G</div>
+                    <div class="brand-text">
+                        <h4>GameInsight</h4>
+                        <span>Dashboard Paneli</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="nav-section-title">Menü</div>
+
+            {% if user.is_authenticated %}
+                <a href="/dashboard/" class="nav-link-custom {% if '/dashboard' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">🎬</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="/library/" class="nav-link-custom {% if '/library' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">📚</span>
+                    <span>Oyun Kütüphanesi</span>
+                </a>
+
+                <a href="/add/" class="nav-link-custom {% if '/add' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">➕</span>
+                    <span>Oyun Ekle</span>
+                </a>
+
+                <a href="/rawg/search/" class="nav-link-custom {% if '/rawg' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">🔎</span>
+                    <span>RAWG Oyun Ara</span>
+                </a>
+
+                <a href="/steam/sync/" class="nav-link-custom {% if '/steam' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">🕹️</span>
+                    <span>Steam Senkronize</span>
+                </a>
+
+                <a href="/logout/" class="nav-link-custom">
+                    <span class="nav-icon">🚪</span>
+                    <span>Çıkış Yap</span>
+                </a>
+            {% else %}
+                <a href="/login/" class="nav-link-custom {% if '/login' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">🔐</span>
+                    <span>Giriş Yap</span>
+                </a>
+
+                <a href="/register/" class="nav-link-custom {% if '/register' in request.path %}active-link{% endif %}">
+                    <span class="nav-icon">📝</span>
+                    <span>Kayıt Ol</span>
+                </a>
+            {% endif %}
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <h2>{% block page_title %}Oyun Harcama ve Analiz Sistemi{% endblock %}</h2>
+                    <p>{% block page_subtitle %}Oyun kütüphaneni analiz et, harcamalarını takip et.{% endblock %}</p>
+                </div>
+
+                <div class="topbar-actions">
+                    {% if user.is_authenticated %}
+                        <a href="/add/" class="btn btn-modern btn-red">+ Yeni Oyun</a>
+                        <a href="/logout/" class="btn btn-modern btn-dark-soft">Çıkış</a>
+                    {% else %}
+                        <a href="/login/" class="btn btn-modern btn-red">Giriş Yap</a>
+                        <a href="/register/" class="btn btn-modern btn-dark-soft">Kayıt Ol</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        function openGamePopup(id) {
+            const popup = document.getElementById(id);
+            if (popup) popup.style.display = "flex";
+        }
+
+        function closeGamePopup(id) {
+            const popup = document.getElementById(id);
+            if (popup) popup.style.display = "none";
+        }
+
+        function scrollNetflixSlider(direction) {
+            const slider = document.getElementById('netflixSlider');
+            if (!slider) return;
+            slider.scrollBy({ left: direction === 'left' ? -500 : 500, behavior: 'smooth' });
+        }
+
+        function scrollRecommendationSlider(direction) {
+            const slider = document.getElementById('recommendationSlider');
+            if (!slider) return;
+            slider.scrollBy({ left: direction === 'left' ? -500 : 500, behavior: 'smooth' });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('mainContent');
+            const toggle = document.getElementById('sidebarToggle');
+
+            if (!sidebar || !content || !toggle) return;
+
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('full');
+            toggle.classList.toggle('collapsed');
+
+            localStorage.setItem(
+                "sidebarState",
+                sidebar.classList.contains('collapsed') ? "closed" : "open"
+            );
+        }
+
+        window.addEventListener('load', () => {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('mainContent');
+            const toggle = document.getElementById('sidebarToggle');
+
+            if (!sidebar || !content || !toggle) return;
+
+            const state = localStorage.getItem("sidebarState");
+
+            if (state === "closed") {
+                sidebar.classList.add('collapsed');
+                content.classList.add('full');
+                toggle.classList.add('collapsed');
+            }
+        });
+    </script>
+</body>
+</html>

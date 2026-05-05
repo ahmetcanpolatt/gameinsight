@@ -1,0 +1,176 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Oyun Kütüphanesi{% endblock %}
+{% block page_title %}Oyun Kütüphanesi{% endblock %}
+{% block page_subtitle %}Tüm oyunlarını listele, filtrele, sırala ve yönet.{% endblock %}
+
+{% block content %}
+
+<div class="glass-card section-card filter-box mb-4">
+    <div class="section-title">Arama ve Filtreleme</div>
+
+    <form method="GET" class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Ara</label>
+            <input
+                type="text"
+                name="q"
+                class="form-control"
+                placeholder="Oyun, platform veya tür ara"
+                value="{{ query }}"
+            >
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Platform</label>
+            <select name="platform" class="form-select">
+                <option value="">Tümü</option>
+                {% for p in platforms %}
+                    <option value="{{ p }}" {% if selected_platform == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Tür</label>
+            <select name="genre" class="form-select">
+                <option value="">Tümü</option>
+                {% for g in genres %}
+                    <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-modern btn-red w-100">Ara</button>
+        </div>
+
+        <div class="col-12 d-flex gap-2 flex-wrap">
+            <a href="/library/" class="btn btn-modern btn-dark-soft">Sıfırla</a>
+            <a href="/add/" class="btn btn-modern btn-red">Yeni Oyun Ekle</a>
+        </div>
+    </form>
+</div>
+
+<div class="glass-card section-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0">Oyun Kütüphane Listesi</div>
+        <span class="badge-soft">{{ total_games }} kayıt</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=name&direction={% if sort == 'name' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Oyun Adı
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=platform&direction={% if sort == 'platform' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Platform
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=genre&direction={% if sort == 'genre' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Tür
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=price&direction={% if sort == 'price' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Fiyat
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=purchase_date&direction={% if sort == 'purchase_date' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Satın Alma Tarihi
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort=playtime_hours&direction={% if sort == 'playtime_hours' and direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-white">
+                            Oynama Süresi
+                        </a>
+                    </th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for game in games %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            {% if game.image_url %}
+                                <img src="{{ game.image_url }}"
+                                     style="width: 50px; height: 70px; object-fit: cover; border-radius: 8px;">
+                            {% endif %}
+                            <strong>{{ game.name }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ game.platform.name }}</td>
+                    <td>{{ game.genre.name }}</td>
+                    <td>{{ game.price }} TL</td>
+                    <td>{{ game.purchase_date }}</td>
+                    <td>{{ game.playtime_hours }} saat</td>
+                    <td>
+                        <a href="/edit/{{ game.id }}/" class="btn btn-sm btn-warning">Düzenle</a>
+                        <a href="/delete/{{ game.id }}/" class="btn btn-sm btn-danger">Sil</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div style="color: var(--text-muted);">Henüz oyun eklenmemiş.</div>
+                        <a href="/add/" class="btn btn-modern btn-red mt-3">İlk Oyununu Ekle</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort={{ sort }}&direction={{ direction }}&page=1">
+                            İlk
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort={{ sort }}&direction={{ direction }}&page={{ page_obj.previous_page_number }}">
+                            Önceki
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link bg-danger text-white border-danger">
+                        Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort={{ sort }}&direction={{ direction }}&page={{ page_obj.next_page_number }}">
+                            Sonraki
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           href="?q={{ query }}&platform={{ selected_platform }}&genre={{ selected_genre }}&sort={{ sort }}&direction={{ direction }}&page={{ page_obj.paginator.num_pages }}">
+                            Son
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Oyun Ekle{% endblock %}
+{% block page_title %}Yeni Oyun Ekle{% endblock %}
+{% block page_subtitle %}Kütüphanene yeni bir oyun ekleyerek analizlerini güncelle.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card section-card">
+            <div class="section-title">Oyun Bilgileri</div>
+
+            <form method="POST" class="row g-3">
+                {% csrf_token %}
+
+                <div class="col-md-12">
+                    <label class="form-label">Oyun Adı</label>
+                    {{ form.name }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Platform</label>
+                    {{ form.platform }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Tür</label>
+                    {{ form.genre }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Fiyat</label>
+                    {{ form.price }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Tahmini Güncel Fiyat</label>
+                    {{ form.estimated_price }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Satın Alma Tarihi</label>
+                    {{ form.purchase_date }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Oynama Süresi (saat)</label>
+                    {{ form.playtime_hours }}
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-modern btn-red">Kaydet</button>
+                    <a href="/dashboard/" class="btn btn-modern btn-dark-soft">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

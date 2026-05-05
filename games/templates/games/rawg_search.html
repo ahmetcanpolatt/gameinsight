@@ -1,0 +1,70 @@
+{% extends 'games/base.html' %}
+
+{% block title %}RAWG Oyun Ara{% endblock %}
+{% block page_title %}RAWG Oyun Arama{% endblock %}
+{% block page_subtitle %}Harici oyun veritabanından oyun bilgisi arayabilirsin.{% endblock %}
+
+{% block content %}
+<div class="glass-card section-card mb-4">
+    <div class="section-title">Oyun Ara</div>
+
+    <form method="GET" class="row g-3">
+        <div class="col-md-10">
+            <input
+                type="text"
+                name="q"
+                class="form-control"
+                placeholder="Örn: Elden Ring, Forza Horizon, FIFA"
+                value="{{ query }}"
+                required
+            >
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-modern btn-red w-100" type="submit">Ara</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    {% for game in results %}
+    <div class="col-md-6">
+        <div class="glass-card section-card h-100">
+            {% if game.background_image %}
+            <img
+                src="{{ game.background_image }}"
+                alt="{{ game.name }}"
+                style="width: 100%; height: 220px; object-fit: cover; border-radius: 18px; margin-bottom: 18px;"
+            >
+            {% endif %}
+
+            <h4>{{ game.name }}</h4>
+            <p style="color: var(--text-muted); margin-bottom: 8px;">
+                Çıkış Tarihi: {{ game.released|default:"Bilinmiyor" }}
+            </p>
+            <p style="color: var(--text-muted); margin-bottom: 8px;">
+                Tür: {{ game.genre|default:"Bilinmiyor" }}
+            </p>
+            <p style="color: var(--text-muted);">
+                Platform: {{ game.platform|default:"Bilinmiyor" }}
+            </p>
+
+            <a
+                href="/add/?name={{ game.name|urlencode }}&genre={{ game.genre|urlencode }}&platform={{ game.platform|urlencode }}&image={{ game.background_image|urlencode }}&rating={{ game.rating }}"
+                class="btn btn-modern btn-red mt-2"
+            >
+                Bu Oyunu Ekle
+            </a>
+        </div>
+    </div>
+    {% empty %}
+        {% if query %}
+        <div class="col-12">
+            <div class="glass-card section-card text-center">
+                Sonuç bulunamadı.
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

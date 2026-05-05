@@ -1,0 +1,58 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Steam Senkronizasyon{% endblock %}
+{% block page_title %}Steam Oyunlarını Senkronize Et{% endblock %}
+{% block page_subtitle %}Steam ID girerek oyun kütüphaneni sisteme aktarabilirsin.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="glass-card section-card">
+            <div class="section-title">Steam ID ile Senkronizasyon</div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if 'success' in message.tags %}success{% else %}danger{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <p style="color: var(--text-muted);">
+                Steam profilindeki oyunları çekmek için SteamID64 değerini gir.
+                Profilin ve oyun detayların herkese açık olmalıdır.
+            </p>
+
+            <form method="POST" class="row g-3">
+                {% csrf_token %}
+
+                <div class="col-12">
+                    <label class="form-label">SteamID64</label>
+                    <input
+                        type="text"
+                        name="steam_id"
+                        class="form-control"
+                        placeholder="7656119XXXXXXXXXX"
+                        required
+                    >
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-modern btn-red">
+                        Steam’den Oyunları Çek
+                    </button>
+                    <a href="/dashboard/" class="btn btn-modern btn-dark-soft">
+                        Geri Dön
+                    </a>
+                </div>
+            </form>
+
+            <hr style="border-color: rgba(255,255,255,0.12); margin: 28px 0;">
+
+            <p style="color: var(--text-muted); margin-bottom: 0;">
+                Not: Steam API yalnızca görünür oyun detaylarını döndürür. Gizli profillerde veri gelmeyebilir.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Rapor Gönder{% endblock %}
+{% block page_title %}Analiz Raporunu Mail Gönder{% endblock %}
+{% block page_subtitle %}PDF analiz raporunu belirlediğin e-posta adresine gönderebilirsin.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card section-card">
+            <div class="section-title">E-posta Bilgisi</div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if 'success' in message.tags %}success{% else %}danger{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="row g-3">
+                {% csrf_token %}
+                <div class="col-12">
+                    <label class="form-label">E-posta Adresi</label>
+                    <input type="email" name="email" class="form-control" placeholder="ornek@mail.com" required>
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-modern btn-red">Gönder</button>
+                    <a href="/dashboard/" class="btn btn-modern btn-dark-soft">Geri Dön</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
